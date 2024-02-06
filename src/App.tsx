@@ -14,7 +14,7 @@ function App() {
   const [truth] = useState("How about a home as a normal sister?");
   const [input, setInput] = useState("");
   const [guesses, setGuesses] = useState<Guess[]>([]);
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
