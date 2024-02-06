@@ -1,6 +1,7 @@
 import levenshtein from "js-levenshtein";
 import { useEffect, useRef, useState } from "react";
-import UserChatBox from "./components/UserChatBox";
+import CreateGuess from "./components/CreateGuess";
+import Result from "./components/Result";
 
 class Guess {
   constructor(
@@ -12,21 +13,42 @@ class Guess {
 
 function App() {
   const [truth] = useState("How about a home as a normal sister?");
-  const [input, setInput] = useState("");
+  const [userInput, setUserInput] = useState("");
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  const calculateSimilarity  = (str1:string, str2:string) =>{
+    
+    const distance = levenshtein(str1, str2);
+  
+    
+    const maxLength = Math.max(str1.length, str2.length);
+  
+    
+    const similarityPercentage = ((maxLength - distance) / maxLength) * 100;
+  
+    return similarityPercentage;
+  }
+  
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>)=>{
+    setUserInput(e.target.value)
+  }
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = levenshtein(truth, input);
-    const guess = new Guess(input, result);
+    const formData = new FormData(e.currentTarget);
+    console.log(formData)
+    const result = calculateSimilarity(truth, userInput);
+    const guess = new Guess(userInput, result);
     setGuesses([...guesses, guess]);
 
-    setInput("");
+    setUserInput("");
   };
 
   useEffect(() => {
@@ -63,45 +85,13 @@ function App() {
             </p>
           </div>
           {guesses.map((guess) => (
-            <UserChatBox {...guess} />
+            <Result key={guess.time.toISOString()} {...guess} />
           ))}
           <div className="pb-0.5" ref={messagesEndRef}></div>
         </div>
       </div>
 
-      <div
-        id="input"
-        className="absolute bottom-0 flex h-[6rem] w-full flex-col items-center justify-center border-t border-neutral-200 bg-white px-4"
-      >
-        <form
-          onSubmit={handleSubmit}
-          className="mx-auto flex w-full max-w-xl gap-2"
-        >
-          <input
-            type="text"
-            placeholder="Vad sa Maria från Teams egentligen?"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="focus:border-primary focus:ring-primary shrink grow rounded-md border border-neutral-200"
-          />
-          <button className="rounded-md border border-neutral-200 bg-neutral-100 p-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="h-6 w-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
-              />
-            </svg>
-          </button>
-        </form>
-      </div>
+      <CreateGuess userInput={userInput} onChange={handleChange} onSubmit={handleSubmit}/>
     </div>
   );
 }
