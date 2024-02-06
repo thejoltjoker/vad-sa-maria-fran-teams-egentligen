@@ -1,5 +1,5 @@
-import UserChatBox from './UserChatBox';
-import ResultLine from './ResultLine';
+import OutgoingMessage from "./OutgoingMessage";
+import ResultLine from "./ResultLine";
 
 type ResultProps = {
   text: string;
@@ -10,10 +10,10 @@ type ResultProps = {
 const Result = (props: ResultProps) => {
   return (
     <>
-      <UserChatBox {...props}/>
+      <OutgoingMessage {...props} />
       <ResultLine result={props.result} />
     </>
-  )
-}
+  );
+};
 
-export default Result
+export default Result;
